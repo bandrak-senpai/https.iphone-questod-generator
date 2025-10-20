@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>iPhone Quote Generator | Bandrak</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    background: url('https://files.catbox.moe/34i73z.jpeg') no-repeat center center/cover;
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 1s ease;
+  }
+
+  /* ===== Intro Page ===== */
+  .intro, .main {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.35);
+    text-align: center;
+    transition: opacity 1s ease, visibility 1s ease;
+  }
+
+  .intro h1 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    animation: heartbeat 1.5s infinite;
+  }
+
+  .btn {
+    background: rgba(255,255,255,0.85);
+    color: #000;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 18px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn:hover { background: #fff; transform: scale(1.05); }
+
+  /* ===== Main Page ===== */
+  .main {
+    opacity: 0;
+    visibility: hidden;
+    padding: 20px;
+  }
+  .main.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .container {
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.15);
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    max-width: 320px;
+    width: 90%;
+  }
+
+  .container h2 {
+    font-weight: 600;
+    font-size: 1.4em;
+    margin-bottom: 15px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+    outline: none;
+    background: rgba(255,255,255,0.8);
+    color: #000;
+  }
+
+  .generate-btn {
+    background: linear-gradient(120deg, #007aff, #7d5fff);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .generate-btn:hover { opacity: 0.9; transform: scale(1.03); }
+
+  .result {
+    margin-top: 20px;
+    font-size: 1em;
+    color: #fff;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .chat-box {
+    margin-top: 20px;
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 15px;
+    min-height: 100px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bubble {
+    align-self: flex-end;
+    background: linear-gradient(120deg, #007aff, #6c63ff);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px 20px 0 20px;
+    max-width: 80%;
+    animation: fadeInUp 0.6s ease;
+  }
+
+  /* ===== Animations ===== */
+  @keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.05); }
+    50% { transform: scale(0.95); }
+    75% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== Page 1: Intro ===== -->
+  <div class="intro" id="intro">
+    <h1>Welcome To iPhone Quote Generator By Bandrak</h1>
+    <button class="btn" onclick="goToMain()">Lanjutkan ➜</button>
+  </div>
+
+  <!-- ===== Page 2: Main App ===== -->
+  <div class="main" id="main">
+    <div class="container">
+      <h2>iPhone Quote Generator</h2>
+      <input type="text" id="quoteInput" placeholder="Tulis kata-kata kamu..." />
+      <button class="generate-btn" onclick="generateQuote()">Generate</button>
+      <div class="result" id="resultText"></div>
+      <div class="chat-box" id="chatBox"></div>
+    </div>
+  </div>
+
+  <!-- Audio Click -->
+  <audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_49b26b81b9.mp3?filename=soft-click-1121.mp3"></audio>
+
+  <script>
+    const intro = document.getElementById('intro');
+    const main = document.getElementById('main');
+    const clickSound = document.getElementById('clickSound');
+    const resultText = document.getElementById('resultText');
+    const chatBox = document.getElementById('chatBox');
+
+    function goToMain() {
+      intro.style.opacity = '0';
+      setTimeout(() => {
+        intro.style.display = 'none';
+        main.classList.add('active');
+      }, 800);
+    }
+
+    function generateQuote() {
+      const input = document.getElementById('quoteInput').value.trim();
+      if (!input) return alert("Tulis dulu kata-katamu!");
+
+      clickSound.currentTime = 0;
+      clickSound.play();
+
+      // Show text result
+      resultText.textContent = `Generate selesai! "${input}"`;
+      resultText.style.opacity = 1;
+
+      // Show chat bubble
+      chatBox.style.display = "flex";
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = input;
+      chatBox.appendChild(bubble);
+    }
+  </script>
+
+</body>
+</html>
